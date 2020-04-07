@@ -22,7 +22,13 @@ type DgramEndpoint struct {
 }
 
 func NewDgramEndpoint(address string, timeout time.Duration, resolve_once bool) (*DgramEndpoint, error) {
-    // TODO: implement resolve_once
+    if resolve_once {
+        resolved, err := net.ResolveUDPAddr("udp", address)
+        if err != nil {
+            return nil, err
+        }
+        address = resolved.String()
+    }
     return &DgramEndpoint{
         address: address,
         timeout: timeout,
