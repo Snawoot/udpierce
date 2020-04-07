@@ -10,6 +10,7 @@ import (
     "time"
     "context"
     "errors"
+    "sync"
 )
 
 const MAX_DGRAM_QLEN = 128
@@ -176,28 +177,41 @@ func (s *ClientSession) pump() {
         }
 
         // Here goes actual data transfer in both directions
-        done := make(chan error, 2)
+        var wg sync.WaitGroup
+        wg.Add(2)
+        ctx, cancel := context.WithCancel(context.Background())
+        outputs := make(chan error, 2)
         go func() {
             var err error
-            defer func (){ done <-err }()
+            defer func () {
+                wg.Done()
+                outputs <-err
+            }()
             for {
-                data, ok := <-s.send_queue
-                if !ok {
-                    err = errors.New("Connection closed by local side")
-                    return
-                }
-                _, err = conn.Write(data)
-                if err != nil {
+                select {
+                case data, ok := <-s.send_queue:
+                    if !ok {
+                        err = errors.New("Connection closed by local side")
+                        return
+                    }
+                    _, err = conn.Write(data)
+                    if err != nil {
+                        return
+                    }
+                case <-ctx.Done():
                     return
                 }
             }
         }()
         go func() {
+            var err error
+            defer func (){
+                wg.Done()
+                outputs <-err
+            }()
             buf := make([]byte, DGRAM_BUF)
             lenbuf := make([]byte, DGRAM_LEN_BYTES)
             for {
-                var err error
-                defer func (){ done <-err }()
                 _, err = io.ReadFull(conn, lenbuf)
                 if err != nil {
                     s.logger.Debug("Incomplete length: %v", err)
@@ -219,10 +233,14 @@ func (s *ClientSession) pump() {
         }()
         select {
         case <-s.ctx.Done():
+            cancel()
             conn.Close()
+            wg.Wait()
             return
-        case err := <-done:
+        case err := <-outputs:
+            cancel()
             conn.Close()
+            wg.Wait()
             s.do_backoff(err)
         }
     }
