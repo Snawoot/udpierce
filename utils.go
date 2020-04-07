@@ -1,14 +1,17 @@
 package main
 
 import (
+    "net"
     "crypto/tls"
     "crypto/x509"
     "io/ioutil"
     "errors"
+    "time"
 )
 
 const DGRAM_BUF = int(^uint16(0)) + 1
 const DGRAM_LEN_BYTES = 2
+const RESOLVE_ATTEMPTS = 3
 
 func makeServerTLSConfig(certfile, keyfile, cafile string) (*tls.Config, error) {
     var cfg tls.Config
@@ -95,4 +98,20 @@ func makeClientTLSConfig(servername, certfile, keyfile, cafile string,
         }
     }
     return &tlsConfig, nil
+}
+
+func ProbeResolveTCP(address string, timeout time.Duration) (string, error) {
+    var (
+        conn net.Conn
+        err error
+    )
+    for i:=0; i < RESOLVE_ATTEMPTS; i++ {
+        conn, err = net.DialTimeout("tcp", address, timeout)
+        if err == nil {
+            resolved := conn.RemoteAddr().String()
+            conn.Close()
+            return resolved, nil
+        }
+    }
+    return "", err
 }

@@ -21,7 +21,7 @@ type ConnFactory struct {
 
 func NewConnFactory(address string, timeout time.Duration, tlsEnabled bool,
                     certfile, keyfile string, cafile string, hostname_check bool,
-                    tls_servername string, dialers uint) (*ConnFactory, error) {
+                    tls_servername string, dialers uint, resolve_once bool) (*ConnFactory, error) {
     var tlsConfig *tls.Config
     host, _, err := net.SplitHostPort(address)
     if err != nil {
@@ -33,6 +33,12 @@ func NewConnFactory(address string, timeout time.Duration, tlsEnabled bool,
             cfg_servername = tls_servername
         }
         tlsConfig, err = makeClientTLSConfig(cfg_servername, certfile, keyfile, cafile, hostname_check)
+        if err != nil {
+            return nil, err
+        }
+    }
+    if resolve_once {
+        address, err = ProbeResolveTCP(address, timeout)
         if err != nil {
             return nil, err
         }

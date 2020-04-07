@@ -22,7 +22,7 @@ func client_main(args *CLIArgs) int {
     connFactory, err := NewConnFactory(args.dst, args.timeout, args.tls,
                                        args.cert, args.key, args.cafile,
                                        args.hostname_check, args.tls_servername,
-                                       args.dialers)
+                                       args.dialers, args.resolve_once)
     if err != nil {
         mainLogger.Critical("Connection factory construction failed: %v", err)
         return 3
