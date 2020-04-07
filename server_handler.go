@@ -38,7 +38,6 @@ func NewServerHandler(password string, endpoint *DgramEndpoint, requireTLSAuth b
 }
 
 func (h *ServerHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-    h.logger.Debug("Incoming connection from %s", req.RemoteAddr)
     if h.requireTLSAuth {
         if req.TLS == nil || len(req.TLS.VerifiedChains) < 1 {
             h.logger.Info("Got unauthorized request (no TLS cert) from %s", req.RemoteAddr)
@@ -118,18 +117,15 @@ func (h *ServerHandler) bridgeEndpoint(stream_conn, dgram_conn net.Conn) {
         lenbuf := make([]byte, DGRAM_LEN_BYTES)
         for {
             _, err := io.ReadFull(stream_conn, lenbuf)
-            h.logger.Debug("Read length=%#v", lenbuf)
             if err != nil {
                 return
             }
             dgram_len := int(binary.BigEndian.Uint16(lenbuf))
             data := buf[:dgram_len]
             _, err = io.ReadFull(stream_conn, data)
-            h.logger.Debug("Read data=%#v", data)
             if err != nil {
                 return
             }
-            h.logger.Debug("Read %d bytes from stream: %s", len(data), string(data))
             n, err := dgram_conn.Write(data)
             if err != nil || n != dgram_len {
                 return
@@ -149,7 +145,6 @@ func (h *ServerHandler) bridgeEndpoint(stream_conn, dgram_conn net.Conn) {
                 return
             }
             binary.BigEndian.PutUint16(lenbuf, uint16(dgram_len))
-            h.logger.Debug("Read %d bytes from dgram endpoint: %s", dgram_len, buf[:dgram_len+DGRAM_LEN_BYTES])
             _, err = stream_conn.Write(buf[:dgram_len+DGRAM_LEN_BYTES])
             if err != nil {
                 return

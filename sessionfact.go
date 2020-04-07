@@ -131,8 +131,6 @@ func (s *ClientSession) Write(data []byte) {
 }
 
 func (s *ClientSession) pump() {
-    s.logger.Debug("Session %s: worker started", s.id)
-    defer s.logger.Debug("Session %s: worker stopped", s.id)
     for {
         if s.Stopped() {
             return
@@ -150,8 +148,6 @@ func (s *ClientSession) pump() {
         go func() {
             defer func() {
                 prologue_done <- struct{}{}
-                s.logger.Debug("Session %s addr %s: prologue sent. Error: %v",
-                               s.id, conn.LocalAddr().String(), err)
             }()
             _, err = conn.Write(s.prologue)
             if err != nil {
@@ -191,7 +187,6 @@ func (s *ClientSession) pump() {
                     return
                 }
                 _, err = conn.Write(data)
-                s.logger.Debug("Wrote to stream: %s", string(data[2:]))
                 if err != nil {
                     return
                 }
@@ -215,7 +210,6 @@ func (s *ClientSession) pump() {
                     s.logger.Warning("Incomplete read from channel: %v", err)
                     return
                 }
-                s.logger.Debug("Read from stream: %s", string(data))
                 n, err := s.reply_cb(data)
                 if err != nil || n != dgram_len {
                     s.logger.Warning("Bad dgram send: %v", err)
