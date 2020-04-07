@@ -200,19 +200,19 @@ func (s *ClientSession) pump() {
                 defer func (){ done <-err }()
                 _, err = io.ReadFull(conn, lenbuf)
                 if err != nil {
-                    s.logger.Warning("Incomplete length: %v", err)
+                    s.logger.Debug("Incomplete length: %v", err)
                     return
                 }
                 dgram_len := int(binary.BigEndian.Uint16(lenbuf))
                 data := buf[:dgram_len]
                 _, err = io.ReadFull(conn, data)
                 if err != nil {
-                    s.logger.Warning("Incomplete read from channel: %v", err)
+                    s.logger.Debug("Incomplete read from channel: %v", err)
                     return
                 }
                 n, err := s.reply_cb(data)
                 if err != nil || n != dgram_len {
-                    s.logger.Warning("Bad dgram send: %v", err)
+                    s.logger.Debug("Bad dgram send: %v", err)
                     return
                 }
             }
