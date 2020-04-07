@@ -21,7 +21,7 @@ type ServerHandler struct {
     logger *CondLogger
 }
 
-const SERVER_HELLO = "CONNECTED\n"
+const SERVER_HELLO = "HTTP/1.1 200 OK\r\n\r\n"
 
 func NewServerHandler(password string, endpoint *DgramEndpoint, requireTLSAuth bool, logger *CondLogger) *ServerHandler {
     handler := ServerHandler{
