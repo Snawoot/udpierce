@@ -7,9 +7,9 @@ import (
 )
 
 type sessionEntry struct {
-    expire time.Time
+    sendexpire time.Time
+    recvexpire time.Time
     sess *ClientSession
-    mux sync.Mutex
 }
 
 type ClientListener struct {
@@ -48,12 +48,10 @@ func (l *ClientListener) notify_conn() {
 func (l *ClientListener) new_session(addr net.Addr) *sessionEntry {
     l.logger.Info("Creating new session for %s", addr.String())
     entry := &sessionEntry{
-        expire: time.Now(),
+        recvexpire: time.Now().Add(l.expire),
     }
     cb := func (data []byte) (int, error) {
-        entry.mux.Lock()
-        entry.expire = time.Now().Add(l.expire)
-        entry.mux.Unlock()
+        entry.sendexpire = time.Now().Add(l.expire)
         return l.conn.WriteTo(data, addr)
     }
     sess := l.sessfact.Session(cb)
@@ -78,16 +76,21 @@ func (l *ClientListener) track_expire() {
             l.sessmux.RLock()
             // Determine next closest expiration and expired sessions
             for k, v := range l.sessions {
-                v.mux.Lock()
-                if now.After(v.expire) {
+                // exp = max(sendexpire, recvexpire)
+                exp := v.recvexpire
+                if v.sendexpire.After(exp) {
+                    exp = v.sendexpire
+                }
+                if now.After(exp) {
+                    // Session expired
                     expired_keys = append(expired_keys, k)
                     expired_entries = append(expired_entries, v)
                 } else {
-                    if v.expire.Before(closest_expire) {
-                        closest_expire = v.expire
+                    // Set next wakeup time as min(session expires)
+                    if exp.Before(closest_expire) {
+                        closest_expire = exp
                     }
                 }
-                v.mux.Unlock()
             }
             l.sessmux.RUnlock()
 
@@ -129,9 +132,7 @@ func (l *ClientListener) ListenAndServe() error {
             if !ok {
                 entry = l.new_session(addr)
             }
-            entry.mux.Lock()
-            entry.expire = time.Now().Add(l.expire)
-            entry.mux.Unlock()
+            entry.recvexpire = time.Now().Add(l.expire)
             entry.sess.Write(buf[:n])
         }
         if err != nil {
