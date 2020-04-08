@@ -43,7 +43,7 @@ func parse_args() *CLIArgs {
     flag.StringVar(&args.dst, "dst", "", "forwarding address")
     flag.IntVar(&args.verbosity, "verbosity", 20, "logging verbosity " +
             "(10 - debug, 20 - info, 30 - warning, 40 - error, 50 - critical)")
-    flag.UintVar(&args.conns, "conns", 8, "(client only) amount of parallel TLS connections")
+    flag.UintVar(&args.conns, "conns", 4, "(client only) amount of parallel TLS connections")
     flag.DurationVar(&args.timeout, "timeout", 10 * time.Second, "connect timeout")
     flag.DurationVar(&args.backoff, "backoff", 5 * time.Second, "(client only) interval between failed connection attempts")
     flag.DurationVar(&args.expire, "expire", 2 * time.Minute, "(client only) idle session lifetime")
