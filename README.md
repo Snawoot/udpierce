@@ -47,6 +47,20 @@ where `127.0.0.1:8911` is a listen address and `example.com:8911` is udpierce se
 
 See Synopsis for more options.
 
+## Authenticaton
+
+udpierce server supports two mechanisms for client authentication:
+
+* Mutual TLS authentication with client certificate (client options `-cert` and `-key`; server option `-cafile`)
+* Simple password authentication (option `-password` on client and server)
+
+These methods may be enabled in any combination or neither of them. Simple password authentication exists for two purposes:
+
+* For cases when it is undesirable to reveal server expects some client certs
+* For simplier deployments
+
+It is insecure to use password authentication with `-tls=false` option.
+
 ## Using as a transport for VPN
 
 This application can be used as a transport for UDP-based VPN like Wireguard or OpenVPN.
