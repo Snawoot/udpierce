@@ -1,6 +1,8 @@
 udpierce
 ========
 
+[![udpierce](https://snapcraft.io//udpierce/badge.svg)](https://snapcraft.io/udpierce)
+
 Generic network wrapper which transports UDP packets over multiple TLS sessions (or plain TCP connections).
 
 Client-side application listens UDP port and for each sending endpoint it establishes multiple connections to server-side application. Server side application maintains UDP endpoint socket for each group of incoming connections and forwards data to destination UDP socket.
@@ -16,12 +18,25 @@ Client-side application listens UDP port and for each sending endpoint it establ
 
 ## Installation
 
+
+#### Pre-built binaries
+
 Pre-built binaries available on [releases](https://github.com/Snawoot/udpierce/releases/latest) page.
+
+#### From source
 
 Alternatively, you may install udpierce from source:
 
 ```
 go get github.com/Snawoot/udpierce
+```
+
+#### From Snap Store
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/udpierce)
+
+```sh
+sudo snap install udpierce
 ```
 
 ## Usage
