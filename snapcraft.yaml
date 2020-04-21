@@ -1,0 +1,22 @@
+name: udpierce
+version: '0.1.0'
+summary: Wrapper which transports UDP packets over multiple TLS sessions
+description: >
+  Generic network wrapper which transports UDP packets over multiple TLS
+  sessions (or plain TCP connections).
+
+confinement: strict
+base: core18
+
+parts:
+  udpierce:
+    plugin: go
+    go-importpath: github.com/Snawoot/udpierce
+    source: .
+
+apps:
+  udpierce:
+    command: bin/udpierce
+    plugs:
+      - network
+      - network-bind
