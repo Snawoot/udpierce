@@ -70,8 +70,10 @@ func (e *DgramEndpoint) DisconnectSession(sess_id string) {
             delete(e.sessions, sess_id)
         }
         e.sessmux.Unlock()
+        if entry.refcount < 1 {
+            entry.conn.Close()
+        }
         entry.mux.Unlock()
-        entry.conn.Close()
     } else {
         e.sessmux.Unlock()
     }
