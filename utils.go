@@ -52,13 +52,7 @@ func makeClientTLSConfig(servername, certfile, keyfile, cafile string,
         certs = append(certs, cert)
     }
     var roots *x509.CertPool
-    if cafile == "" {
-        sysroots, err := x509.SystemCertPool()
-        if err != nil {
-            return nil, err
-        }
-        roots = sysroots
-    } else {
+    if cafile != "" {
         roots = x509.NewCertPool()
         certs, err := ioutil.ReadFile(cafile)
         if err != nil {
