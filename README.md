@@ -75,6 +75,24 @@ where `127.0.0.1:8911` is a listen address and `example.com:8911` is udpierce se
 
 See Synopsis for more options.
 
+## Docker
+
+A docker image is available as well. Here is an example for running udpierce server as a background service:
+
+```sh
+docker run -d \
+    --security-opt no-new-privileges \
+    -p 8911:8911 \
+    --restart unless-stopped \
+    --name udpierce \
+    yarmak/udpierce \
+	-server \
+	-cert /etc/letsencrypt/live/example.com/fullchain.pem \
+    -key /etc/letsencrypt/live/example.com/privkey.pem \
+    -password MySecurePassword \
+    -dst 127.0.0.1:26611
+```
+
 ## Authenticaton
 
 udpierce server supports two mechanisms for client authentication:
