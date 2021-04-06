@@ -8,7 +8,7 @@ src = $(wildcard *.go)
 native: bin-native
 all: bin-linux-amd64 bin-linux-386 bin-linux-arm \
 	bin-freebsd-amd64 bin-freebsd-386 bin-freebsd-arm \
-	bin-darwin-amd64 \
+	bin-darwin-amd64 bin-darwin-arm64 \
 	bin-windows-amd64 bin-windows-386
 
 bin-native: $(OUTSUFFIX)
@@ -19,6 +19,7 @@ bin-freebsd-amd64: $(OUTSUFFIX).freebsd-amd64
 bin-freebsd-386: $(OUTSUFFIX).freebsd-386
 bin-freebsd-arm: $(OUTSUFFIX).freebsd-arm
 bin-darwin-amd64: $(OUTSUFFIX).darwin-amd64
+bin-darwin-arm64: $(OUTSUFFIX).darwin-arm64
 bin-windows-amd64: $(OUTSUFFIX).windows-amd64.exe
 bin-windows-386: $(OUTSUFFIX).windows-386.exe
 
@@ -45,6 +46,9 @@ $(OUTSUFFIX).freebsd-arm: $(src)
 
 $(OUTSUFFIX).darwin-amd64: $(src)
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build $(BUILDOPTS) $(LDFLAGS) -o $@
+
+$(OUTSUFFIX).darwin-arm64: $(src)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build $(BUILDOPTS) $(LDFLAGS) -o $@
 
 $(OUTSUFFIX).windows-amd64.exe: $(src)
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build $(BUILDOPTS) $(LDFLAGS) -o $@
