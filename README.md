@@ -86,11 +86,11 @@ docker run -d \
     --restart unless-stopped \
     --name udpierce \
     yarmak/udpierce \
-	-server \
-	-cert /etc/letsencrypt/live/example.com/fullchain.pem \
+    -server \
+    -cert /etc/letsencrypt/live/example.com/fullchain.pem \
     -key /etc/letsencrypt/live/example.com/privkey.pem \
     -password MySecurePassword \
-    -dst 127.0.0.1:26611
+    -dst 172.20.0.1:26611
 ```
 
 ## Authenticaton
