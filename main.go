@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+var (
+	version = "undefined"
+)
+
 func perror(msg string) {
 	fmt.Fprintln(os.Stderr, "")
 	fmt.Fprintln(os.Stderr, msg)
@@ -33,6 +37,7 @@ type CLIArgs struct {
 	resolve_once             bool
 	dialers                  uint
 	tls                      bool
+	showVersion              bool
 }
 
 func parse_args() *CLIArgs {
@@ -56,7 +61,14 @@ func parse_args() *CLIArgs {
 	flag.BoolVar(&args.resolve_once, "resolve-once", false, "(client only) resolve server hostname once on start")
 	flag.UintVar(&args.dialers, "dialers", uint(runtime.GOMAXPROCS(0)), "(client only) concurrency limit for TLS connection attempts")
 	flag.BoolVar(&args.tls, "tls", true, "use TLS")
+	flag.BoolVar(&args.showVersion, "version", false, "show program version and exit")
 	flag.Parse()
+
+	if args.showVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
+
 	if args.dst == "" {
 		arg_fail("Destination address argument is required!")
 	}
