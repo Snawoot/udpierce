@@ -1,5 +1,7 @@
 FROM golang AS build
 
+ARG GIT_DESC=undefined
+
 WORKDIR /go/src/github.com/Snawoot/udpierce
 COPY . .
 RUN CGO_ENABLED=0 go build -a -tags netgo -ldflags '-s -w -extldflags "-static" -X main.version='"$GIT_DESC"
