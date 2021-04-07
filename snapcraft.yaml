@@ -11,12 +11,18 @@ base: core18
 parts:
   udpierce:
     plugin: go
-    go-importpath: github.com/Snawoot/udpierce
     source: .
+    build-packages:
+      - gcc
+    override-build:
+      make &&
+      cp bin/udpierce "$SNAPCRAFT_PART_INSTALL"
+    stage:
+      - udpierce
 
 apps:
   udpierce:
-    command: bin/udpierce
+    command: udpierce
     plugs:
       - network
       - network-bind
